@@ -1,5 +1,12 @@
 // Kindle Clippings reads the clippings file from a Kindle and output them as
 // json.
+//
+// Usage:
+//
+//     kindle-clippings PATH [--only TYPE]
+//
+// where PATH is the path to the mounted Kindle. Json output is written to
+// Stdout.
 package main
 
 import (
