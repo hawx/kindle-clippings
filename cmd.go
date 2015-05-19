@@ -17,12 +17,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"hawx.me/code/kindle-tools/kindle-clippings/clippings"
+	"hawx.me/code/kindle-clippings/clippings"
 )
 
-var (
-	onlyType = flag.String("only", "", "")
-)
+var onlyType = flag.String("only", "", "")
+
+const clippingsPath = "documents/My Clippings.txt"
 
 const helpMsg = `Usage: kindle-clippings PATH [--only TYPE]
 
@@ -46,7 +46,7 @@ func main() {
 		return
 	}
 
-	path := filepath.Join(flag.Arg(0), "documents/My Clippings.txt")
+	path := filepath.Join(flag.Arg(0), clippingsPath)
 
 	file, err := os.Open(path)
 	if err != nil {

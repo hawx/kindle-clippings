@@ -35,9 +35,7 @@ type Reader struct {
 }
 
 func NewReader(r io.Reader) *Reader {
-	return &Reader{
-		bufio.NewReader(r),
-	}
+	return &Reader{bufio.NewReader(r)}
 }
 
 func (r *Reader) Read() (clipping Clipping, err error) {
@@ -45,6 +43,11 @@ func (r *Reader) Read() (clipping Clipping, err error) {
 	line, err := r.ReadString('\n')
 	if err != nil {
 		return
+	}
+
+	// skip random bom
+	if line[:3] == "\ufeff" {
+		line = line[3:]
 	}
 
 	lastP := strings.LastIndex(line, "(")
