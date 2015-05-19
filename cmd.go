@@ -46,11 +46,12 @@ func main() {
 		return
 	}
 
-	path := filepath.Join(flag.Arg(0), clippingsPath)
-
-	file, err := os.Open(path)
+	file, err := os.Open(filepath.Join(flag.Arg(0), clippingsPath))
 	if err != nil {
-		log.Fatal(err)
+		file, err = os.Open(flag.Arg(0))
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 	defer file.Close()
 
