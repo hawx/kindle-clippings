@@ -18,9 +18,8 @@ import (
 	"path/filepath"
 
 	"hawx.me/code/kindle-clippings/clippings"
+	"hawx.me/code/kindle-clippings/fortune"
 )
-
-var onlyType = flag.String("only", "", "")
 
 const clippingsPath = "documents/My Clippings.txt"
 
@@ -32,16 +31,21 @@ const helpMsg = `Usage: kindle-clippings PATH [--only TYPE] [--fortune]
       Path to Kindle, for example /media/johndoe/Kindle or /Volumes/Kindle.
 
    --only TYPE
-      Only list items of the given type (Bookmark, Note or Highlight)
+      Only list items of the given type (Bookmark, Note or Highlight).
 
    --fortune
-      Output in a format for use as a fortune(6) cookie file
+      Output in a format for use as a fortune(6) cookie file.
+
+      After creating the file you will need to run 'strfile' over it to produce
+      a .dat companion.
 `
 
 func main() {
-	flag.Usage = func() {
-		fmt.Println(helpMsg)
-	}
+	var (
+		onlyType      = flag.String("only", "", "")
+		fortuneOutput = flag.Bool("fortune", false, "")
+	)
+	flag.Usage = func() { fmt.Println(helpMsg) }
 	flag.Parse()
 
 	if len(flag.Args()) != 1 {
@@ -77,5 +81,9 @@ func main() {
 		items = filtered
 	}
 
-	json.NewEncoder(os.Stdout).Encode(items)
+	if *fortuneOutput {
+		fortune.Fortunes(items).WriteTo(os.Stdout)
+	} else {
+		json.NewEncoder(os.Stdout).Encode(items)
+	}
 }
