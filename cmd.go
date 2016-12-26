@@ -24,15 +24,18 @@ var onlyType = flag.String("only", "", "")
 
 const clippingsPath = "documents/My Clippings.txt"
 
-const helpMsg = `Usage: kindle-clippings PATH [--only TYPE]
+const helpMsg = `Usage: kindle-clippings PATH [--only TYPE] [--fortune]
 
-  Reads clippings from your Kindle and outputs them in json format to Stdout.
+  Reads clippings from your Kindle and outputs them in JSON format to STDOUT.
 
- PATH
-     Path to Kindle, for example /media/johndoe/Kindle or /Volumes/Kindle.
+   PATH
+      Path to Kindle, for example /media/johndoe/Kindle or /Volumes/Kindle.
 
- --only TYPE
-     Only list items of the given type (Bookmark, Note or Highlight)
+   --only TYPE
+      Only list items of the given type (Bookmark, Note or Highlight)
+
+   --fortune
+      Output in a format for use as a fortune(6) cookie file
 `
 
 func main() {

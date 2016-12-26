@@ -11,9 +11,10 @@ import (
 )
 
 const (
-	delim      = "=========="
-	dateFmt    = "Monday, 2 January 2006 15:04:05"
-	altDateFmt = "Monday, 2 January 06 15:04:05"
+	delim         = "=========="
+	dateFmt       = "Monday, 2 January 2006 15:04:05"
+	altDateFmt    = "Monday, 2 January 06 15:04:05"
+	unknownAuthor = "Unknown Author"
 )
 
 type Range struct {
@@ -51,8 +52,13 @@ func (r *Reader) Read() (clipping Clipping, err error) {
 	}
 
 	lastP := strings.LastIndex(line, "(")
-	clipping.Title = line[:lastP-1]
-	clipping.Author = line[lastP+1 : len(line)-3]
+	if lastP > 0 {
+		clipping.Title = strings.TrimSpace(line[:lastP-1])
+		clipping.Author = flipName(strings.TrimSpace(line[lastP+1 : len(line)-3]))
+	} else {
+		clipping.Title = strings.TrimSpace(line)
+		clipping.Author = unknownAuthor
+	}
 
 	// get type, pg, loc, datetime
 	line, err = r.ReadString('\n')
@@ -144,4 +150,13 @@ func parseDatetime(s string) (time.Time, error) {
 	}
 
 	return t, nil
+}
+
+func flipName(name string) string {
+	parts := strings.SplitN(name, ", ", 2)
+	if len(parts) < 2 {
+		return name
+	}
+
+	return parts[1] + " " + parts[0]
 }
