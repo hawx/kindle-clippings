@@ -1,6 +1,9 @@
+// Package fortune wraps a list of clippings.Clipping with a type to allow
+// them to be written in a nice format.
 package fortune
 
 import (
+	"fmt"
 	"io"
 	"strings"
 
@@ -22,22 +25,23 @@ func (f Fortunes) WriteTo(w io.Writer) error {
 				return err
 			}
 		}
-		_, err := w.Write([]byte("\n" + justify(fortune.Content, 70)))
-		if err != nil {
-			return err
-		}
-		_, err = w.Write([]byte("\n\n    " + fortune.Title))
-		if err != nil {
-			return err
-		}
 
-		_, err = w.Write([]byte("\n    By " + fortune.Author))
-		if err != nil {
+		if err := format(w, fortune); err != nil {
 			return err
 		}
 	}
 
 	_, err := w.Write([]byte("\n"))
+	return err
+}
+
+func format(w io.Writer, c clippings.Clipping) error {
+	_, err := fmt.Fprintf(w, `
+%s
+
+    %s
+    By %s
+`, justify(c.Content, 80), c.Title, c.Author)
 	return err
 }
 

@@ -10,15 +10,18 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
 
 	"hawx.me/code/kindle-clippings/clippings"
 	"hawx.me/code/kindle-clippings/fortune"
+	"hawx.me/code/kindle-clippings/strfile"
 )
 
 const clippingsPath = "documents/My Clippings.txt"
@@ -33,17 +36,15 @@ const helpMsg = `Usage: kindle-clippings PATH [--only TYPE] [--fortune]
    --only TYPE
       Only list items of the given type (Bookmark, Note or Highlight).
 
-   --fortune
-      Output in a format for use as a fortune(6) cookie file.
-
-      After creating the file you will need to run 'strfile' over it to produce
-      a .dat companion.
+   --fortune OUTPATH
+      Output in a format for use as a fortune(6) cookie file. This will actually
+      create two files: 'OUTPATH' and 'OUTPATH.dat'.
 `
 
 func main() {
 	var (
 		onlyType      = flag.String("only", "", "")
-		fortuneOutput = flag.Bool("fortune", false, "")
+		fortuneOutput = flag.String("fortune", "", "")
 	)
 	flag.Usage = func() { fmt.Println(helpMsg) }
 	flag.Parse()
@@ -65,7 +66,7 @@ func main() {
 	r := clippings.NewReader(file)
 	items, err := r.ReadAll()
 	if err != nil {
-		fmt.Println("err: %v", err)
+		log.Println(err)
 		return
 	}
 
@@ -81,9 +82,32 @@ func main() {
 		items = filtered
 	}
 
-	if *fortuneOutput {
-		fortune.Fortunes(items).WriteTo(os.Stdout)
+	if *fortuneOutput != "" {
+		fortuneFile, err := openFile(*fortuneOutput)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		defer fortuneFile.Close()
+
+		datFile, err := openFile(*fortuneOutput + ".dat")
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		defer datFile.Close()
+
+		var buf bytes.Buffer
+		fortune.Fortunes(items).WriteTo(&buf)
+
+		tee := io.TeeReader(&buf, fortuneFile)
+		strfile.Strfile(tee, datFile)
+
 	} else {
 		json.NewEncoder(os.Stdout).Encode(items)
 	}
+}
+
+func openFile(path string) (*os.File, error) {
+	return os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 }
