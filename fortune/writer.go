@@ -41,7 +41,7 @@ func format(w io.Writer, c clippings.Clipping) error {
 
     %s
     By %s
-`, justify(c.Content, 80), c.Title, c.Author)
+`, justify(c.Content, 80), splitTitle(c.Title), c.Author)
 	return err
 }
 
@@ -64,4 +64,12 @@ func justify(text string, numberOfChars int) string {
 	}
 
 	return strings.Join(lines, "\n")
+}
+
+func splitTitle(title string) string {
+	if i := strings.Index(title, ":"); i >= 0 {
+		return title[:i+1] + "\n       " + title[i+1:]
+	}
+
+	return title
 }
