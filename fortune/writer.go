@@ -15,10 +15,13 @@ import (
 
 var delim = []byte("\n%\n")
 
-type Fortunes []clippings.Clipping
+type Fortunes struct {
+	Items []clippings.Clipping
+	Width int
+}
 
 func (f Fortunes) WriteTo(w io.Writer) error {
-	for i, fortune := range f {
+	for i, fortune := range f.Items {
 		if i > 0 {
 			_, err := w.Write(delim)
 			if err != nil {
@@ -26,7 +29,7 @@ func (f Fortunes) WriteTo(w io.Writer) error {
 			}
 		}
 
-		if err := format(w, fortune); err != nil {
+		if err := format(w, fortune, f.Width); err != nil {
 			return err
 		}
 	}
@@ -35,13 +38,13 @@ func (f Fortunes) WriteTo(w io.Writer) error {
 	return err
 }
 
-func format(w io.Writer, c clippings.Clipping) error {
+func format(w io.Writer, c clippings.Clipping, l int) error {
 	_, err := fmt.Fprintf(w, `
 %s
 
     %s
     By %s
-`, justify(c.Content, 80), splitTitle(c.Title), c.Author)
+`, justify(c.Content, l-8), splitTitle(c.Title), c.Author)
 	return err
 }
 

@@ -128,6 +128,18 @@ func (r *Reader) ReadAll() (clippings []Clipping, err error) {
 	}
 }
 
+func Filter(items []Clipping, onlyType string) []Clipping {
+	var filtered []Clipping
+
+	for _, item := range items {
+		if item.Type == onlyType {
+			filtered = append(filtered, item)
+		}
+	}
+
+	return filtered
+}
+
 func parseLocation(s string) (*Range, error) {
 	fields := strings.Split(s, "-")
 	switch len(fields) {
